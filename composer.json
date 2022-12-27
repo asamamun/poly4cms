@@ -1,0 +1,17 @@
+{
+    "name": "wdpf/poly4cms",
+    "description": "polytechnic web4 content management system",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Wdpf\\Poly4cms\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "asamamun",
+            "email": "asamamun.web@gmail.com"
+        }
+    ],
+    "require": {}
+}
