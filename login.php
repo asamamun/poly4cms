@@ -1,3 +1,25 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if(isset($_POST['login'])){
+    require "inc/connection.php";
+    $email = $_POST['email'];
+    $pass = $_POST['password'];
+    $s = "select * from users where email='$email' limit 1";
+    $r = $conn->query($s);
+    if($r->num_rows){
+        $row = $r->fetch_assoc();
+        if(password_verify($pass, $row['password'])){
+            $_SESSION['userid'] = $row['id'];
+            $_SESSION['username'] = $row['name'];
+            $_SESSION['role'] = $row['role'];
+            $_SESSION['loggedin'] = true;
+            header("location:dashboard.php");
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -21,13 +43,13 @@
                                 <div class="card shadow-lg border-0 rounded-lg mt-5">
                                     <div class="card-header"><h3 class="text-center font-weight-light my-4">Login</h3></div>
                                     <div class="card-body">
-                                        <form>
+                                        <form action="" method="post">
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputEmail" type="email" placeholder="name@example.com" />
+                                                <input class="form-control" id="inputEmail" type="email" name="email" placeholder="name@example.com" />
                                                 <label for="inputEmail">Email address</label>
                                             </div>
                                             <div class="form-floating mb-3">
-                                                <input class="form-control" id="inputPassword" type="password" placeholder="Password" />
+                                                <input class="form-control" id="inputPassword" type="password" name="password" placeholder="Password" />
                                                 <label for="inputPassword">Password</label>
                                             </div>
                                             <div class="form-check mb-3">
@@ -36,7 +58,7 @@
                                             </div>
                                             <div class="d-flex align-items-center justify-content-between mt-4 mb-0">
                                                 <a class="small" href="password.html">Forgot Password?</a>
-                                                <a class="btn btn-primary" href="index.html">Login</a>
+                                                <input type="submit" class="btn btn-primary" name="login" value="Login">
                                             </div>
                                         </form>
                                     </div>
