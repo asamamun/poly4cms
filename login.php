@@ -15,7 +15,13 @@ if(isset($_POST['login'])){
             $_SESSION['username'] = $row['name'];
             $_SESSION['role'] = $row['role'];
             $_SESSION['loggedin'] = true;
+            if($row['role'] == 2){
             header("location:dashboard.php");
+            }
+            if($row['role'] == 1){
+                header("location:index.php");
+                }
+
         }
     }
 }
