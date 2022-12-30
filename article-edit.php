@@ -1,7 +1,31 @@
 <?php
 require "inc/connection.php";
 require "inc/adminauth.php";
-if(isset($_POST['submit'])){
+//update article
+if(isset($_POST['update'])){
+$id = $_POST['id'];
+$title = $conn->escape_string($_POST['atitle']);
+$des = $conn->escape_string($_POST['adesc']);
+// $des = $files['aimage'];
+$active = $_POST['active'];
+$cat = $_POST['acat'];
+$tag = $_POST['atag'];
+$update = "UPDATE `articles` set `category_id`='".$cat."',`title`='".$title."',`description`='".$des."',`active`='".$active."',`tags`='".$tag."' WHERE id='".$id."' limit 1";
+
+$conn->query($update);
+if($conn->affected_rows){
+    header("location:article-all.php");
+}
+
+}
+
+if(isset($_GET['id'])){
+    $id = $_GET['id'];
+    $s = "select * from articles where id='".$id."' limit 1";
+    $r=$conn->query($s);
+    $row = $r->fetch_assoc();
+}
+/* if(isset($_POST['submit'])){
     $title = $conn->escape_string($_POST['atitle']);
     $desc = $conn->escape_string($_POST['adesc']);
     $cat = $_POST['acat'];
@@ -12,12 +36,13 @@ if(isset($_POST['submit'])){
         $image = uniqid().".png";
         move_uploaded_file($_FILES['aimage']['tmp_name'],'assets/aimages/'.$image);
     }
-    $iq = "insert into articles values(null,'".$cat."','".$title."','".$desc."','".$image."','1','".$_SESSION['userid']."','".$tag."','',null,null)";
+    $iq = "insert into articles values(null,'".$cat."','".$title."','".$desc."','".$image."','1','".$_SESSION['userid']."','".$tag."','',null)";
     $conn->query($iq);
     if($conn->affected_rows){
         $message = "Article Added";
     }
-}
+} */
+
 
 
 $q = "select * from categories where 1";
@@ -41,9 +66,10 @@ $r = $conn->query($q);
 
 <!-- content -->
 <form class="row g-3 needs-validation" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id" value="<?= $id ?>">
 <div class="col-md-12">
     <label for="atitle" class="form-label">Title</label>
-    <input type="text" class="form-control" name="atitle" id="atitle" required>
+    <input type="text" class="form-control" name="atitle" id="atitle" value="<?= $row['title']; ?>" required>
     <div class="valid-feedback">
       Looks good!
     </div>
@@ -53,31 +79,44 @@ $r = $conn->query($q);
   </div>
 <div class="col-md-12">
     <label for="adesc" class="form-label">Description</label>
-    <textarea name="adesc" id="adesc" class="form-control"></textarea>
+    <textarea name="adesc" id="adesc" class="form-control"><?=$row['description']; ?></textarea>
     <div class="valid-feedback">
       Looks good!
     </div>
     <div class="invalid-feedback">
       Required
     </div>
+  </div>
+  <div class="col-md-6">
+    <label for="aimage" class="form-label">Image</label>
+    <input type="file" class="form-control" id="aimage" name="aimage">
+    <div class="valid-feedback">
+      Looks good!
+    </div>
+    <div class="invalid-feedback">
+      Required
+    </div>
+  </div>
+  <div class="col-md-6">
+    <img class="img-fluid" src="assets/aimages/<?= $row['images']  ?>" alt="">
   </div>
   <div class="col-md-12">
-    <label for="aimage" class="form-label">Image</label>
-    <input type="file" class="form-control" id="aimage" name="aimage" required>
-    <div class="valid-feedback">
-      Looks good!
-    </div>
-    <div class="invalid-feedback">
-      Required
-    </div>
+    <label for="active" class="form-label">Active</label>
+    <select name="active" id="active" class="form-control">
+        <option value="1" <?= $row['active']=="1"?"selected":""; ?>>Active</option>
+        <option value="0" <?= $row['active']=="0"?"selected":""; ?>>InActive</option>
+    </select>
+
   </div>
+  
   <div class="col-md-12">
     <label for="acat" class="form-label">Category</label>
     <select class="form-select" name="acat" id="acat">
     <option selected disabled value="">Choose...</option>
     <?php
-while($row = $r->fetch_assoc()){
-    echo "<option value='".$row['id']."'>".$row['name']."</option>";
+while($c = $r->fetch_assoc()){
+    $selected = $c['id']==$row['category_id']?"selected":"";
+    echo "<option value='".$c['id']."' ".$selected.">".$c['name']."</option>";
 }
 
 ?>
@@ -91,7 +130,7 @@ while($row = $r->fetch_assoc()){
   </div>
   <div class="col-md-12">
     <label for="atag" class="form-label">Tags</label>
-    <input type="text" class="form-control" id="atag" name="atag" placeholder="add tags with comma separated values">
+    <input type="text" class="form-control" id="atag" name="atag" value="<?=$row['tags'] ?>">
     <div class="valid-feedback">
       Looks good!
     </div>
@@ -100,7 +139,7 @@ while($row = $r->fetch_assoc()){
     </div>
   </div>
   <div class="col-12">
-    <button class="btn btn-outline-primary" type="submit" name="submit">Submit form</button>
+    <button class="btn btn-outline-primary" type="submit" name="update">Update Article</button>
   </div>
 </form>
 <!--  content-end-->
